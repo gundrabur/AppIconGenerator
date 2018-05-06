@@ -1,0 +1,64 @@
+(*
+Droplet AppIconGenerator
+Version 1.0
+
+Copyright © 2018 cmg-software
+This code is using some Apple sample code
+
+You may incorporate this code into your program(s) without
+restriction.  This sample code has been provided "AS IS" and the
+responsibility for its operation is yours.  You are not permitted to
+redistribute this sample code as "cmg-software sample code" after having
+made changes. If you're going to redistribute the code, we require
+that you make it clear that the code was descended from cmg-software sample
+code, but that you've made changes.
+
+###############
+
+Copyright 2018 Christian Moeller
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+###############
+
+Note: This license has also been called the "New BSD License" or "Modified BSD License".
+See also the 2-clause BSD License.
+
+Copyright 2018 Christian Moeller
+
+Redistribution and use in source and binary forms, with or without modification,
+are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice,
+this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+this list of conditions and the following disclaimer in the documentation
+and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+contributors may be used to endorse or promote products derived
+from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS
+BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR
+BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*)property done_foldername : "AppIconsXcode"property newimage_extension : "png"-- output files will be all png property type_list : {"TIFF", "GIFf", "PNGf", "PICT"}-- since file types are optional in Mac OS X, -- check the name extension if there is no file type -- NOTE: do not use periods (.) with the items in the name extensions list -- eg: {"txt", "text", "jpg", "jpeg"}, NOT: {".txt", ".text", ".jpg", ".jpeg"} property extension_list : {"tif", "tiff", "gif", "png", "pict", "pct", "jpg", "jpeg"}property filename_list : {"01 iPhone Notification iOS 7-11 20pt 2x.png", "02 iPhone Notification iOS 7-11 20pt 3x.png", "03 iPhone Spotlight - iOS 5,6 Settings - iOS 5-11 29pt 2x.png", "04 iPhone Spotlight - iOS 5,6 Settings - iOS 5-11 29pt 3x.png", "05 iPhone Spotlight iOS 7-11 40pt 2x.png", "06 iPhone Spotlight iOS 7-11 40pt 3x.png", "07 iPhone App iOS 7-1 60pt 2x.png", "08 iPhone App iOS 7-1 60pt 3x.png", "09 iPad Notifications iOS 7-11 20pt 1x.png", "10 iPad Notifications iOS 7-11 20pt 2x.png", "11 iPad Settings iOS 5-11 29pt 1x.png", "12 iPad Settings iOS 5-11 29pt 2x.png", "13 iPad Spotlight iOS 7-11 40pt 1x.png", "14 iPad Spotlight iOS 7-11 40pt 2x.png", "15 iPad App iOS 7-11 76pt 1x.png", "16 iPad App iOS 7-11 76pt 2x.png", "17 iPad Pro App iOS 9-11 83.5pt 2x.png", "18 App Store iOS 1024pt 1x.png"}-- all 18 icons are generated with proper names showing up in Xcode (version 9 or higher)property sizes_list : {40, 60, 38, 87, 80, 120, 120, 180, 20, 40, 29, 58, 40, 80, 76, 152, 167, 1024}-- these are the sizes corresponding to the 18 icon files-- making this script a dropleton open these_items		tell application "Finder"		-- get parent folder of dropped image		set this_folder to container of (these_items as alias)	end tell		tell application "Finder"		-- create output folder if not exists already		if not (exists folder done_foldername of this_folder) then			make new folder at this_folder with properties {name:done_foldername}		end if		set the results_folder to (folder done_foldername of this_folder) as alias	end tell		try		repeat with i from 1 to number of items in these_items			set this_item to item i of these_items						repeat with j from 1 to number of items in filename_list								set actualFilename to item j of filename_list				set actualSize to item j of sizes_list								process_item(this_item, actualFilename, results_folder, actualSize)							end repeat					end repeat	on error error_message number error_number		if the error_number is not -128 then			tell application "Finder"				activate				display dialog error_message buttons {"Cancel"} default button 1 giving up after 120			end tell		end if	end try	end open-- this sub-routine processes files on process_item(source_file, new_name, results_folder, current_size)	-- NOTE that the variable this_item is a file reference in alias format 	try		-- the target path is the destination folder and the new file name		set the target_path to ((results_folder as string) & new_name) as string		with timeout of 900 seconds			tell application "Image Events"				launch -- always use with Folder Actions				set this_image to open file (source_file as string)				scale this_image to size current_size				save this_image as PNG in file target_path with icon				close this_image			end tell		end timeout	on error error_message		tell application "Finder"			activate			display dialog error_message buttons {"Cancel"} default button 1 giving up after 120		end tell	end tryend process_item
